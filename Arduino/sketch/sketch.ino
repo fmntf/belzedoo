@@ -59,7 +59,7 @@ void loop()
           readFromSerial[readIndex] = '\0';
         }
         
-        if (serialChar == '\n' || serialChar == 10 || serialChar == '\r') {
+        if (serialChar == 10 || serialChar == 13) {
           messageComplete = true;
         }
       }
@@ -217,7 +217,7 @@ void reply(const char* response, int len)
       break;
 
     case CONNECTION_SERIAL:
-      Serial.print(response);
+      Serial.println(response);
       break;
   }
 }
