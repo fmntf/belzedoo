@@ -27,6 +27,7 @@ void setup()
 {
     Serial.begin(115200);   
     Serial.println("UDOO Serial started!");
+    cpu_irq_enable();
 }
 
 void loop()
@@ -44,29 +45,36 @@ void loop()
         processCommand((char*)buf);
       }
     }  
-    
-    if (Serial.available()){
+  
+    if (Serial.available() > 5){
       char readFromSerial[100];
       char serialChar;
       int readIndex = 0;
       bool messageComplete = false;
+      int watchDog = 255;
       
       while (!messageComplete) {
         serialChar = Serial.read();
-        if (serialChar != 255) {
+        if (serialChar == 255) {
+          watchDog--;
+          if (watchDog <= 0) {
+            Serial.flush();
+            return;
+          }
+        } else {
           readFromSerial[readIndex] = serialChar;
           readIndex++;
           readFromSerial[readIndex] = '\0';
-        }
-        
-        if (serialChar == 10 || serialChar == 13) {
-          messageComplete = true;
+          
+          if (serialChar == 10 || serialChar == 13) {
+            messageComplete = true;
+          }
         }
       }
       activeConnection = CONNECTION_SERIAL;
       processCommand(readFromSerial);
     }
-    
+  
     delay(10);
 }
 
