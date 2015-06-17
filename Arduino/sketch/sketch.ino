@@ -15,6 +15,7 @@ ADK adk(&Usb, manufacturerName, modelName, descriptionName, versionNumber, url, 
 #define RCVSIZE 128
 uint8_t buf[RCVSIZE];
 uint32_t bytesRead = 0;
+#define SKETCH_VERSION 1
 
 #define CONNECTION_ADK      0
 #define CONNECTION_SERIAL   1
@@ -26,7 +27,8 @@ String successReply = "{\"success\":true}";
 void setup()
 {
     Serial.begin(115200);   
-    Serial.println("UDOO Serial started!");
+    Serial1.begin(115200);   
+    Serial1.println("UDOO debug serial started!");
     cpu_irq_enable();
 }
 
@@ -58,7 +60,7 @@ void loop()
         if (serialChar == 255) {
           watchDog--;
           if (watchDog <= 0) {
-            Serial.flush();
+            Serial1.println("Watchdog reset!");
             return;
           }
         } else {
@@ -80,9 +82,9 @@ void loop()
 
 void processCommand(char* readBuffer)
 {
-//  Serial.print("CMD: ");
-//  Serial.println(readBuffer);
-//  Serial.flush();
+//  Serial1.print("CMD: ");
+//  Serial1.println(readBuffer);
+//  Serial1.flush();
   
   if (strcmp(readBuffer, "H") == 0) {
     reply("I");
@@ -102,6 +104,7 @@ void processCommand(char* readBuffer)
     
   } else {
     reply("{\"success\":false,\"error\":\"PARSE_FAILED\"}");
+    reply(readBuffer);
   }
 }
 
@@ -148,7 +151,13 @@ void callMethod(JsonObject& root)
   const char* method = root["method"];
 
   if (strcmp(method, "hi") == 0) {
-    reply(successReply);
+    StaticJsonBuffer<200> responseJsonBuffer;
+    JsonObject& response = responseJsonBuffer.createObject();
+    response["success"] = (bool)true;
+    response["version"] = SKETCH_VERSION;
+    char jsonOut[128];
+    int written = response.printTo(jsonOut, 128);
+    reply(jsonOut, written);
     
   } else if (strcmp(method, "digitalWrite") == 0) {
     int pin = root["pin"];
