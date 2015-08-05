@@ -15,19 +15,16 @@ ADK adk(&Usb, manufacturerName, modelName, descriptionName, versionNumber, url, 
 #define RCVSIZE 128
 uint8_t buf[RCVSIZE];
 uint32_t bytesRead = 0;
-#define SKETCH_VERSION 1
+#define SKETCH_VERSION 2
 
 #define CONNECTION_ADK      0
 #define CONNECTION_SERIAL   1
 int activeConnection;
 
-char successResponse[] = "{\"success\":true}";
-String successReply = "{\"success\":true}";
-
 void setup()
 {
-    Serial.begin(115200);   
-    Serial1.begin(115200);   
+    Serial.begin(115200);
+    Serial1.begin(115200);
     Serial1.println("UDOO debug serial started!");
     cpu_irq_enable();
 }
@@ -48,15 +45,17 @@ void loop()
       }
     }  
   
-    if (Serial.available() > 5){
+    if (Serial.available() > 0){
       char readFromSerial[100];
       char serialChar;
       int readIndex = 0;
       bool messageComplete = false;
-      int watchDog = 255;
+      int watchDog = 512;
       
       while (!messageComplete) {
         serialChar = Serial.read();
+        Serial1.print("X+ " );
+        Serial1.println(serialChar);
         if (serialChar == 255) {
           watchDog--;
           if (watchDog <= 0) {
@@ -82,9 +81,9 @@ void loop()
 
 void processCommand(char* readBuffer)
 {
-//  Serial1.print("CMD: ");
-//  Serial1.println(readBuffer);
-//  Serial1.flush();
+  Serial1.print("CMD: ");
+  Serial1.println(readBuffer);
+  Serial1.flush();
   
   if (strcmp(readBuffer, "H") == 0) {
     reply("I");
@@ -111,6 +110,9 @@ void processCommand(char* readBuffer)
 void callSensor(JsonObject& root)
 {
   const char* sensor = root["sensor"];
+  StaticJsonBuffer<200> responseJsonBuffer;
+  JsonObject& response = responseJsonBuffer.createObject();
+  response["id"] = root["id"];
 
   if (strcmp(sensor, "dht11") == 0) {
     int pin = root["pin"];
@@ -123,10 +125,7 @@ void callSensor(JsonObject& root)
       delay(1000);
       chk = DHT.read(pin);
     }
-    
-    StaticJsonBuffer<200> responseJsonBuffer;
-    JsonObject& response = responseJsonBuffer.createObject();
-    
+        
     if (chk == DHTLIB_OK) {
       response["success"] = (bool)true;
       response["temperature"] = DHT.temperature;
@@ -135,63 +134,51 @@ void callSensor(JsonObject& root)
       response["success"] = (bool)false;
       response["errorCode"] = chk;
     }
-    
-    char jsonOut[128];
-    int written = response.printTo(jsonOut, 128);
-    reply(jsonOut, written);
   }
   
   else {
-    reply("{\"success\":false,\"error\":\"NO_SENSOR\"}");
+    response["success"] = (bool)false;
+    response["error"] = "NO_SENSOR";
   }
+  
+  char jsonOut[128];
+  int written = response.printTo(jsonOut, 128);
+  reply(jsonOut, written);
 }
 
 void callMethod(JsonObject& root)
 {
   const char* method = root["method"];
+  StaticJsonBuffer<200> responseJsonBuffer;
+  JsonObject& response = responseJsonBuffer.createObject();
+  response["success"] = (bool)true;
+  response["id"] = root["id"];
 
   if (strcmp(method, "hi") == 0) {
-    StaticJsonBuffer<200> responseJsonBuffer;
-    JsonObject& response = responseJsonBuffer.createObject();
-    response["success"] = (bool)true;
     response["version"] = SKETCH_VERSION;
-    char jsonOut[128];
-    int written = response.printTo(jsonOut, 128);
-    reply(jsonOut, written);
     
+  } else if (strcmp(method, "disconnect") == 0) {
+    response["disconnected"] = (bool)true;
+
   } else if (strcmp(method, "digitalWrite") == 0) {
     int pin = root["pin"];
     int value = root["value"];
     digitalWrite(pin, value);
-    reply(successReply);
 
   } else if (strcmp(method, "pinMode") == 0) {
     int pin = root["pin"];
     int value = root["value"];
     pinMode(pin, value);
-    reply(successReply);
 
   } else if (strcmp(method, "digitalRead") == 0) {
     int pin = root["pin"];
-    int value = digitalRead(pin);     
-    StaticJsonBuffer<200> responseJsonBuffer;
-    JsonObject& response = responseJsonBuffer.createObject();
-    response["success"] = (bool)true;
+    int value = digitalRead(pin);
     response["value"] = value;
-    char jsonOut[128];
-    int written = response.printTo(jsonOut, 128);
-    reply(jsonOut, written);
 
   } else if (strcmp(method, "analogRead") == 0) {
     int pin = root["pin"];
     int value = analogRead(pin);
-    StaticJsonBuffer<200> responseJsonBuffer;
-    JsonObject& response = responseJsonBuffer.createObject();
-    response["success"] = (bool)true;
     response["value"] = value;
-    char jsonOut[128];
-    int written = response.printTo(jsonOut, 128);
-    reply(jsonOut, written);
 
   } else if (strcmp(method, "map") == 0) {
     int value = root["value"];
@@ -200,29 +187,27 @@ void callMethod(JsonObject& root)
     int toLow = root["toLow"];
     int toHigh = root["toHigh"];
     int mapped = map(value, fromLow, fromHigh, toLow, toHigh);
-    StaticJsonBuffer<200> responseJsonBuffer;
-    JsonObject& response = responseJsonBuffer.createObject();
-    response["success"] = (bool)true;
     response["value"] = mapped;
-    char jsonOut[128];
-    int written = response.printTo(jsonOut, 128);
-    reply(jsonOut, written);
 
   } else if (strcmp(method, "analogWrite") == 0) {
     int pin = root["pin"];
     int value = root["value"];
     analogWrite(pin, value);
-    reply(successReply);
 
   } else if (strcmp(method, "delay") == 0) {
     int value = root["value"];
     delay(value);
-    reply(successReply);
   }
  
   else {
-    reply("{\"success\":false,\"error\":\"NO_METHOD\"}");
+    response["success"] = (bool)false;
+    response["error"] = "NO_METHOD";
   }
+  
+  char jsonOut[128];
+  int written = response.printTo(jsonOut, 128);
+  jsonOut[written] = '\0';
+  reply(jsonOut, written);
 }
 
 void reply(const char* response, int len)
@@ -235,6 +220,7 @@ void reply(const char* response, int len)
 
     case CONNECTION_SERIAL:
       Serial.println(response);
+      Serial1.println(response);
       break;
   }
 }
