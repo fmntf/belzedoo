@@ -36,6 +36,11 @@ void setup()
   Serial1.println("UDOO debug serial started!");
 #endif
   cpu_irq_enable();
+  
+  activeConnection = CONNECTION_ADK;
+  reply("{\"success\":true,\"startup\":true}");
+  activeConnection = CONNECTION_SERIAL;
+  reply("{\"success\":true,\"startup\":true}");
 }
 
 void loop()
