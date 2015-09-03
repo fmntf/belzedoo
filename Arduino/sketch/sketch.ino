@@ -226,6 +226,11 @@ void callMethod(JsonObject& root)
       case 6: attachInterrupt(pin, interrupt_handler_6, mode); break;
       case 7: attachInterrupt(pin, interrupt_handler_7, mode); break;
       case 8: attachInterrupt(pin, interrupt_handler_8, mode); break;
+      case 9: attachInterrupt(pin, interrupt_handler_9, mode); break;
+      case 10: attachInterrupt(pin, interrupt_handler_10, mode); break;
+      case 11: attachInterrupt(pin, interrupt_handler_11, mode); break;
+      case 12: attachInterrupt(pin, interrupt_handler_12, mode); break;
+      case 13: attachInterrupt(pin, interrupt_handler_13, mode); break;
     }
 
 #ifdef SERIAL1_DEBUG    
@@ -276,6 +281,11 @@ void interrupt_handler_5() {interrupt_handler_pin(5);}
 void interrupt_handler_6() {interrupt_handler_pin(6);}
 void interrupt_handler_7() {interrupt_handler_pin(7);}
 void interrupt_handler_8() {interrupt_handler_pin(8);}
+void interrupt_handler_9() {interrupt_handler_pin(9);}
+void interrupt_handler_10() {interrupt_handler_pin(10);}
+void interrupt_handler_11() {interrupt_handler_pin(11);}
+void interrupt_handler_12() {interrupt_handler_pin(12);}
+void interrupt_handler_13() {interrupt_handler_pin(13);}
 
 void reply(const char* response, int len)
 {
