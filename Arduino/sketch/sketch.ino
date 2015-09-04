@@ -2,7 +2,7 @@
 
 #include <adk.h>
 #include <ArduinoJson.h>
-#include <dht11.h>
+#include <dht.h>
 
 char descriptionName[] = "UDOOAppInventor";
 char modelName[] = "AppInventor"; // Need to be the same defined in the Android App
@@ -125,16 +125,28 @@ void callSensor(JsonObject& root)
   JsonObject& response = responseJsonBuffer.createObject();
   response["id"] = root["id"];
 
-  if (strcmp(sensor, "dht11") == 0) {
+  if (strcmp(sensor, "DHT11") == 0 || strcmp(sensor, "DHT22") == 0) {
     int pin = root["pin"];
-    dht11 DHT;
+    dht DHT;
     int chk;
-    chk = DHT.read(pin);
+    bool isDHT11 = false;
+    if (strcmp(sensor, "DHT11") == 0) {
+      isDHT11 = true;
+    }
     
+    if (isDHT11) {
+      chk = DHT.read11(pin);
+    } else {
+      chk = DHT.read22(pin);
+    }
     if (chk != DHTLIB_OK) {
       // try again, sometimes the sensor returns an error!
       delay(1000);
-      chk = DHT.read(pin);
+      if (isDHT11) {
+        chk = DHT.read11(pin);
+      } else {
+        chk = DHT.read11(pin);
+      }
     }
         
     if (chk == DHTLIB_OK) {
