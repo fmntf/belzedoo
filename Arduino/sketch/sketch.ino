@@ -145,7 +145,7 @@ void callSensor(JsonObject& root)
       if (isDHT11) {
         chk = DHT.read11(pin);
       } else {
-        chk = DHT.read11(pin);
+        chk = DHT.read22(pin);
       }
     }
         
