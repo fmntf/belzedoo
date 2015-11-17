@@ -108,10 +108,10 @@ void processCommand(char* readBuffer)
   
   if (root.success()) {
     if (root.containsKey("method")) {
-      callMethod(root);
+      handleMethodRequest(root);
     }
     if (root.containsKey("sensor")) {
-      callSensor(root);
+      handleSensorRequest(root);
     }
     
   } else {
@@ -120,7 +120,7 @@ void processCommand(char* readBuffer)
   }
 }
 
-void callSensor(JsonObject& root)
+void handleSensorRequest(JsonObject& root)
 {
   const char* sensor = root["sensor"];
   StaticJsonBuffer<200> responseJsonBuffer;
@@ -198,7 +198,7 @@ void callSensor(JsonObject& root)
   reply(jsonOut, written);
 }
 
-void callMethod(JsonObject& root)
+void handleMethodRequest(JsonObject& root)
 {
   const char* method = root["method"];
   StaticJsonBuffer<200> responseJsonBuffer;
