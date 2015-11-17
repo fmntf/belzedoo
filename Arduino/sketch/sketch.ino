@@ -3,6 +3,8 @@
 #include <adk.h>
 #include <ArduinoJson.h>
 #include <dht.h>
+#include <Wire.h>
+#include "Adafruit_TCS34725.h"
 
 char descriptionName[] = "UDOOAppInventor";
 char modelName[] = "AppInventor"; // Need to be the same defined in the Android App
@@ -159,6 +161,33 @@ void callSensor(JsonObject& root)
     }
   }
   
+  else if (strcmp(sensor, "TCS34725") == 0) {
+    
+    Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
+    if (tcs.begin()) {
+      uint16_t clear, red, green, blue;
+      tcs.setInterrupt(false);
+      delay(60);  // takes 50ms to read 
+      tcs.getRawData(&red, &green, &blue, &clear);
+      tcs.setInterrupt(true);
+      uint32_t sum = clear;
+      float r, g, b;
+      r = red; r /= sum;
+      g = green; g /= sum;
+      b = blue; b /= sum;
+      r *= 256; g *= 256; b *= 256;
+      
+      response["success"] = (bool)true;
+      response["red"] = (int)r;
+      response["green"] = (int)g;
+      response["blue"] = (int)b;
+    } else {
+      response["success"] = (bool)false;
+      response["errorCode"] = 0;
+    }
+
+  }
+  
   else {
     response["success"] = (bool)false;
     response["error"] = "NO_SENSOR";
@@ -275,6 +304,7 @@ void interrupt_handler_pin(int pin)
     StaticJsonBuffer<200> responseJsonBuffer;
     JsonObject& response = responseJsonBuffer.createObject();
     response["success"] = (bool)true;
+    response["pin"] = pin;
     response["id"] = interrupt_ids[pin];
     
     written = response.printTo(jsonOut, 255);
