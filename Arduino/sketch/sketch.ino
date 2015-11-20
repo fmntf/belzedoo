@@ -14,8 +14,8 @@ char versionNumber[] = "1.0"; // Need to be the same defined in the Android App
 char serialNumber[] = "1";
 char url[] = "http://appinventor.udoo.org"; // If there isn't any compatible app installed, Android suggest to visit this url
 
-USBHost Usb;
-ADK adk(&Usb, manufacturerName, modelName, descriptionName, versionNumber, url, serialNumber);
+USBHost usb;
+ADK adk(&usb, manufacturerName, modelName, descriptionName, versionNumber, url, serialNumber);
 
 #define RCVSIZE 128
 uint8_t buf[RCVSIZE];
@@ -25,6 +25,8 @@ uint32_t bytesRead = 0;
 #define CONNECTION_ADK      0
 #define CONNECTION_SERIAL   1
 int activeConnection;
+
+#define SERIAL1_DEBUG 1
 
 char jsonOut[256];
 int written;
@@ -49,7 +51,7 @@ void setup()
 
 void loop()
 {
-  Usb.Task();
+  usb.Task();
    
   if (adk.isReady()) {
     for (int i=0; i<RCVSIZE; i++) {
@@ -97,12 +99,19 @@ void loop()
   delay(10);
 }
 
+void resetADK()
+{
+  USBHost newusb;
+  ADK newadk(&newusb, manufacturerName, modelName, descriptionName, versionNumber, url, serialNumber);
+  usb = newusb;
+  adk = newadk;
+}
+
 void processCommand(char* readBuffer)
 {
 #ifdef SERIAL1_DEBUG
-  Serial1.print("CMD: ");
+  Serial1.print("\RX:   ");
   Serial1.println(readBuffer);
-  Serial1.flush();
 #endif
 
   StaticJsonBuffer<2000> jsonBuffer;
@@ -236,11 +245,16 @@ void handleMethodRequest(JsonObject& root)
   JsonObject& response = responseJsonBuffer.createObject();
   response["success"] = (bool)true;
   response["id"] = root["id"];
+  bool resetADK = false;
 
   if (strcmp(method, "hi") == 0) {
     response["version"] = SKETCH_VERSION;
     
   } else if (strcmp(method, "disconnect") == 0) {
+    for (int i=0; i<=13; i++) {
+      detachInterrupt(i);
+    }
+    resetADK = true;
     response["disconnected"] = (bool)true;
 
   } else if (strcmp(method, "digitalWrite") == 0) {
@@ -305,13 +319,11 @@ void handleMethodRequest(JsonObject& root)
       case 13: attachInterrupt(pin, interrupt_handler_13, mode); break;
     }
 
-#ifdef SERIAL1_DEBUG    
-    Serial1.print("Registered interrupt handler on pin ");
-    Serial1.print(pin);
-    Serial1.print(" and mode ");
-    Serial1.print(mode);
-    Serial1.print(" widh id ");
-    Serial1.println(interrupt_ids[pin]);
+#ifdef SERIAL1_DEBUG
+    char buff[100];
+    snprintf(buff, sizeof(buff), "Registered interrupt handler on pin %d and mode %d with ID=%d", 
+      pin, mode, interrupt_ids[pin]);
+    Serial1.println(buff);
 #endif
   }
  
@@ -323,6 +335,8 @@ void handleMethodRequest(JsonObject& root)
   written = response.printTo(jsonOut, 255);
   jsonOut[written] = '\0';
   reply(jsonOut, written);
+  
+//  if (resetADK) resetADK();
 }
 
 void interrupt_handler_pin(int pin)
@@ -330,7 +344,7 @@ void interrupt_handler_pin(int pin)
   if (millis() - last_interrupt_call[pin] > 100) {
     last_interrupt_call[pin] = millis();
 #ifdef SERIAL1_DEBUG
-    Serial1.println("Called INT HANDLER!");
+    Serial1.println("Called interrupt handler!");
 #endif  
     StaticJsonBuffer<200> responseJsonBuffer;
     JsonObject& response = responseJsonBuffer.createObject();
@@ -370,11 +384,12 @@ void reply(const char* response, int len)
 
     case CONNECTION_SERIAL:
       Serial.println(response);
-#ifdef SERIAL1_DEBUG
-      Serial1.println(response);
-#endif
       break;
   }
+  #ifdef SERIAL1_DEBUG
+        Serial1.print("TX:   ");
+        Serial1.println(response);
+  #endif
 }
 
 void reply(String str)
