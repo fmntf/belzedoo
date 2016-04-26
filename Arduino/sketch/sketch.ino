@@ -3,16 +3,18 @@
 #include <adk.h>
 #include <ArduinoJson.h>
 #include <dht.h>
+#include <SI7021.h>
+#include "TSL2561.h"
 #include <Wire.h>
 #include <Servo.h>
 #include "Adafruit_TCS34725.h"
 
-char descriptionName[] = "UDOOAppInventor";
-char modelName[] = "AppInventor"; // Need to be the same defined in the Android App
+char descriptionName[]  = "UDOOAppInventor";
+char modelName[]        = "AppInventor"; // Need to be the same defined in the Android App
 char manufacturerName[] = "UDOO"; // Need to be the same defined in the Android App
-char versionNumber[] = "1.0"; // Need to be the same defined in the Android App
-char serialNumber[] = "1";
-char url[] = "http://appinventor.udoo.org"; // If there isn't any compatible app installed, Android suggest to visit this url
+char versionNumber[   ] = "1.0"; // Need to be the same defined in the Android App
+char serialNumber[]     = "1";
+char url[]              = "http://appinventor.udoo.org"; // If there isn't any compatible app installed, Android suggest to visit this url
 
 USBHost usb;
 ADK adk(&usb, manufacturerName, modelName, descriptionName, versionNumber, url, serialNumber);
@@ -195,6 +197,43 @@ void handleSensorRequest(JsonObject& root)
       response["red"] = (int)r;
       response["green"] = (int)g;
       response["blue"] = (int)b;
+    } else {
+      response["success"] = (bool)false;
+      response["errorCode"] = 0;
+    }
+
+  }
+  
+  else if (strcmp(sensor, "HUMIDITY_BRICK") == 0) {
+    
+    SI7021 humidityBrick;
+
+    if (humidityBrick.begin()) {
+      response["success"]     = (bool)true;
+      response["temperature"] = humidityBrick.getCelsiusHundredths()/100;
+      response["humidity"]    = humidityBrick.getHumidityPercent();
+    } else {
+      response["success"] = (bool)false;
+      response["errorCode"] = 0;
+    }
+
+  }
+  
+  else if (strcmp(sensor, "LIGHT_BRICK") == 0) {
+     
+    TSL2561 tsl(TSL2561_ADDR_LOW); 
+
+    if (tsl.begin()) {
+      
+      uint32_t lum = tsl.getFullLuminosity();
+      uint16_t ir, full;
+      ir = lum >> 16;
+      full = lum & 0xFFFF;
+      
+      response["success"] = (bool)true;
+      response["visible"] = full - ir;
+      response["ir"]      = ir;
+      response["full"]    = full;
     } else {
       response["success"] = (bool)false;
       response["errorCode"] = 0;
