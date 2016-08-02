@@ -22,9 +22,9 @@ void reply(const char* response, int len)
       break;
   }
   
-  #ifdef SERIAL1_DEBUG
-        Serial1.print("TX:   ");
-        Serial1.println(response);
+  #ifdef SERIAL_DEBUG
+        SERIAL_DEBUG.print("TX:   ");
+        SERIAL_DEBUG.println(response);
   #endif
 }
 

@@ -31,9 +31,9 @@ connection_type activeConnection;
 void setup()
 {
   Serial.begin(115200);
-#ifdef SERIAL1_DEBUG
-  Serial1.begin(115200);
-  Serial1.println("UDOO debug serial started!");
+#ifdef SERIAL_DEBUG
+  SERIAL_DEBUG.begin(115200);
+  SERIAL_DEBUG.println("UDOO debug serial started!");
 #endif
 
 #ifdef HAS_ADK
@@ -71,15 +71,15 @@ void loop()
     
     while (!messageComplete) {
       serialChar = Serial.read();
-#ifdef SERIAL1_DEBUG
-      Serial1.print("X+ " );
-      Serial1.println(serialChar);
+#ifdef SERIAL_DEBUG
+      SERIAL_DEBUG.print("X+ " );
+      SERIAL_DEBUG.println(serialChar);
 #endif
       if (serialChar == 255) {
         watchDog--;
         if (watchDog <= 0) {
-#ifdef SERIAL1_DEBUG
-          Serial1.println("Watchdog reset!");
+#ifdef SERIAL_DEBUG
+          SERIAL_DEBUG.println("Watchdog reset!");
 #endif
           return;
         }
@@ -99,14 +99,19 @@ void loop()
 
   flushInterrupts();
 
-  delay(10);
+  SERIAL_DEBUG.println("macheo!");
+  Serial.println("macheo!");
+  Serial0.println("macheo!");
+
+
+  delay(300);
 }
 
 void processCommand(char* readBuffer)
 {
-#ifdef SERIAL1_DEBUG
-  Serial1.print("\RX:   ");
-  Serial1.println(readBuffer);
+#ifdef SERIAL_DEBUG
+  SERIAL_DEBUG.print("\RX:   ");
+  SERIAL_DEBUG.println(readBuffer);
 #endif
 
   StaticJsonBuffer<2000> jsonBuffer;

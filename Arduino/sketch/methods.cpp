@@ -87,11 +87,11 @@ void handleMethodRequest(JsonObject& root)
       case 13: attachInterrupt(pin, interrupt_handler_13, mode); break;
     }
 
-#ifdef SERIAL1_DEBUG
+#ifdef SERIAL_DEBUG
     char buff[100];
     snprintf(buff, sizeof(buff), "Registered interrupt handler on pin %d and mode %d with ID=%d", 
       pin, mode, interrupt_ids[pin]);
-    Serial1.println(buff);
+    SERIAL_DEBUG.println(buff);
 #endif
   }
  
@@ -109,8 +109,8 @@ void interrupt_handler_pin(int pin)
 {
   if (millis() - last_interrupt_call[pin] > 100) {
     last_interrupt_call[pin] = millis();
-#ifdef SERIAL1_DEBUG
-    Serial1.println("Called interrupt handler!");
+#ifdef SERIAL_DEBUG
+    SERIAL_DEBUG.println("Called interrupt handler!");
 #endif  
     StaticJsonBuffer<200> responseJsonBuffer;
     JsonObject& response = responseJsonBuffer.createObject();
