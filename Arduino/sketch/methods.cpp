@@ -117,6 +117,7 @@ void interrupt_handler_pin(int pin)
     response["success"] = (bool)true;
     response["pin"] = pin;
     response["id"] = interrupt_ids[pin];
+    response["timestamp"] = last_interrupt_call[pin];
     
     written = response.printTo(jsonOut, 255);
     jsonOut[written] = '\0';
