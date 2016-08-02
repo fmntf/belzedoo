@@ -719,7 +719,11 @@ namespace std{
 
 	template<class T, class Allocator> void deque<T, Allocator>::pop_front(){
 		if(elements == 0){
+#ifdef __UCLIBCXX_EXCEPTION_SUPPORT__
 			__throw_out_of_range("deque pop_front");
+#else
+			return;
+#endif
 		}
 		a.destroy(data + first_element);
 		first_element = array_element(1);
