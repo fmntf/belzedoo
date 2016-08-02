@@ -25,6 +25,8 @@ int written;
 #include "methods.h"
 #include "servo.h"
 
+void processCommand(char* readBuffer);
+
 connection_type activeConnection;
 
 
@@ -99,12 +101,7 @@ void loop()
 
   flushInterrupts();
 
-  SERIAL_DEBUG.println("macheo!");
-  Serial.println("macheo!");
-  Serial0.println("macheo!");
-
-
-  delay(300);
+  delay(10);
 }
 
 void processCommand(char* readBuffer)
