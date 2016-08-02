@@ -6,6 +6,8 @@ extern int written;
 int interrupt_ids[53] = {0};
 volatile unsigned long last_interrupt_call[53] = {0};
 
+std::queue <response_t> interrupts;
+
 void handleMethodRequest(JsonObject& root)
 {
   const char* method = root["method"];
@@ -118,8 +120,18 @@ void interrupt_handler_pin(int pin)
     
     written = response.printTo(jsonOut, 255);
     jsonOut[written] = '\0';
-    
-    reply(jsonOut, written);
+
+    response_t res = {written, jsonOut};
+    interrupts.push(res);
+  }
+}
+
+void flushInterrupts()
+{
+  while(!interrupts.empty()) {
+    response_t res = interrupts.front();
+    reply(res.json, res.length);
+    interrupts.pop();
   }
 }
 
@@ -137,3 +149,4 @@ void interrupt_handler_10() {interrupt_handler_pin(10);}
 void interrupt_handler_11() {interrupt_handler_pin(11);}
 void interrupt_handler_12() {interrupt_handler_pin(12);}
 void interrupt_handler_13() {interrupt_handler_pin(13);}
+

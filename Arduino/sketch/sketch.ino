@@ -97,6 +97,8 @@ void loop()
     processCommand(readFromSerial);
   }
 
+  flushInterrupts();
+
   delay(10);
 }
 

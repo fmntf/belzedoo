@@ -7,6 +7,11 @@
 #include <adk.h>
 #endif
 
+typedef struct {
+  int length;
+  char* json;
+} response_t;
+
 typedef enum {
   CONN_ADK,
   CONN_SERIAL

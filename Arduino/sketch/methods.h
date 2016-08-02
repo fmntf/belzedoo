@@ -5,6 +5,8 @@
 #include "reply.h"
 #include <ArduinoJson.h>
 #include "Arduino.h"
+#include "StandardCplusplus.h"
+#include "queue"
 
 void handleMethodRequest(JsonObject& root);
 
@@ -24,5 +26,7 @@ void interrupt_handler_10();
 void interrupt_handler_11();
 void interrupt_handler_12();
 void interrupt_handler_13();
+
+void flushInterrupts();
 
 #endif
