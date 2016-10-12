@@ -231,11 +231,11 @@ namespace std{
 
 			size_t retval = 0;
 			//Save operating flags from file descriptor
-			int fcntl_flags = fcntl(fileno(fp), F_GETFL);
+			int fcntl_flags = fcntl(fp->_file, F_GETFL);
 			retval = 0;
 
 			//Set to non_blocking mode
-			fcntl(fileno(fp), F_SETFL, fcntl_flags | O_NONBLOCK);
+			fcntl(fp->_file, F_SETFL, fcntl_flags | O_NONBLOCK);
 
 			//Fill rest of buffer
 			retval = fread(basic_streambuf<charT,traits>::egptr() - 
@@ -251,13 +251,13 @@ namespace std{
 			}
 
 			//Restore file descriptor clase
-			fcntl(fileno(fp), F_SETFL, fcntl_flags);
+			fcntl(fp->_file, F_SETFL, fcntl_flags);
 
 			//Now we are going to make sure that we read in at least one character.  The hard way.
 			if(retval == 0){
-				fcntl_flags = fcntl(fileno(fp), F_GETFL);
+				fcntl_flags = fcntl(fp->_file, F_GETFL);
 				//Set to blocking mode
-				fcntl(fileno(fp), F_SETFL, fcntl_flags & ~O_NONBLOCK);
+				fcntl(fp->_file, F_SETFL, fcntl_flags & ~O_NONBLOCK);
 
 				retval = fread(basic_streambuf<charT,traits>::egptr() - 
 					basic_streambuf<charT,traits>::gptr() + basic_streambuf<charT,traits>::eback(),
@@ -267,7 +267,7 @@ namespace std{
 				);
 
 				//Restore file descriptor clase
-				fcntl(fileno(fp), F_SETFL, fcntl_flags);
+				fcntl(fp->_file, F_SETFL, fcntl_flags);
 
 			}
 
