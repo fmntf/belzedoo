@@ -1,5 +1,12 @@
 #include "config.h"
 #include <ArduinoJson.h>
+#include <StandardCplusplus.h>
+#include <Servo.h>
+#include <dht.h>
+#include <Wire.h>
+#include <SI7021.h>
+#include <TSL2561.h>
+#include <Adafruit_TCS34725.h>
 
 #ifdef HAS_ADK
 #include <adk.h>
