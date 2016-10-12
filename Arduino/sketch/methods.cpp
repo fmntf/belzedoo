@@ -93,6 +93,17 @@ void handleMethodRequest(JsonObject& root)
       pin, mode, interrupt_ids[pin]);
     SERIAL_DEBUG.println(buff);
 #endif
+
+  } else if (strcmp(method, "detachInterrupt") == 0) {
+    int pin = root["pin"];
+    interrupt_ids[pin] = 0;
+    detachInterrupt(pin);
+    
+#ifdef SERIAL_DEBUG
+    char buff[100];
+    snprintf(buff, sizeof(buff), "Unregistered interrupt handler on pin %d", pin);
+    SERIAL_DEBUG.println(buff);
+#endif
   }
  
   else {
