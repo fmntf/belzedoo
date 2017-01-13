@@ -6,7 +6,7 @@ extern int written;
 int interrupt_ids[53] = {0};
 volatile unsigned long last_interrupt_call[53] = {0};
 
-std::queue <response_t> interrupts;
+std::queue <response_t> queuedInterrupts;
 
 void handleMethodRequest(JsonObject& root)
 {
@@ -128,22 +128,24 @@ void interrupt_handler_pin(int pin)
     response["success"] = (bool)true;
     response["pin"] = pin;
     response["id"] = interrupt_ids[pin];
+    #ifndef __ARDUINO_ARC__
     response["timestamp"] = last_interrupt_call[pin];
-    
+    #endif
+
     written = response.printTo(jsonOut, 255);
     jsonOut[written] = '\0';
 
     response_t res = {written, jsonOut};
-    interrupts.push(res);
+    queuedInterrupts.push(res);
   }
 }
 
 void flushInterrupts()
 {
-  while(!interrupts.empty()) {
-    response_t res = interrupts.front();
+  while(!queuedInterrupts.empty()) {
+    response_t res = queuedInterrupts.front();
     reply(res.json, res.length);
-    interrupts.pop();
+    queuedInterrupts.pop();
   }
 }
 

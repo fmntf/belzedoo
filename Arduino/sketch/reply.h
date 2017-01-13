@@ -13,7 +13,9 @@ typedef struct {
 } response_t;
 
 typedef enum {
+#ifdef HAS_ADK
   CONN_ADK,
+#endif
   CONN_SERIAL
 } connection_type;
 

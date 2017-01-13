@@ -114,7 +114,7 @@ void loop()
 void processCommand(char* readBuffer)
 {
 #ifdef SERIAL_DEBUG
-  SERIAL_DEBUG.print("\RX:   ");
+  SERIAL_DEBUG.print("RX:   ");
   SERIAL_DEBUG.println(readBuffer);
 #endif
 

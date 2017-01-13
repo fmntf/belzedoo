@@ -6,10 +6,15 @@
 #define SKETCH_VERSION 3
 
 #ifdef ARDUINO_UDOO_NEO
-#define SERIAL_DEBUG Serial0
+  #define SERIAL_DEBUG Serial0
 #else
-#define SERIAL_DEBUG Serial1
-#define HAS_ADK
+  #ifdef __ARDUINO_ARC__
+    #define SERIAL_DEBUG Serial1
+  #else
+    #define SERIAL_DEBUG Serial1
+    #define HAS_ADK
+  #endif
 #endif
+
 
 #endif
