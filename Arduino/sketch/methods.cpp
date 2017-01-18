@@ -128,9 +128,7 @@ void interrupt_handler_pin(int pin)
     response["success"] = (bool)true;
     response["pin"] = pin;
     response["id"] = interrupt_ids[pin];
-    #ifndef __ARDUINO_ARC__
     response["timestamp"] = last_interrupt_call[pin];
-    #endif
 
     written = response.printTo(jsonOut, 255);
     jsonOut[written] = '\0';
