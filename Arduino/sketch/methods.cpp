@@ -112,6 +112,8 @@ void handleMethodRequest(JsonObject& root)
   }
   
   written = response.printTo(jsonOut, 255);
+  jsonOut[written] = '\n';
+  written++;
   jsonOut[written] = '\0';
   reply(jsonOut, written);
 }
@@ -131,6 +133,8 @@ void interrupt_handler_pin(int pin)
     response["timestamp"] = last_interrupt_call[pin];
 
     written = response.printTo(jsonOut, 255);
+    jsonOut[written] = '\n';
+    written++;
     jsonOut[written] = '\0';
 
     response_t res = {written, jsonOut};

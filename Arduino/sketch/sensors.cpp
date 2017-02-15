@@ -122,6 +122,8 @@ void handleSensorRequest(JsonObject& root)
   }
   
   written = response.printTo(jsonOut, 255);
+  jsonOut[written] = '\n';
+  written++;
   jsonOut[written] = '\0';
   reply(jsonOut, written);
 }

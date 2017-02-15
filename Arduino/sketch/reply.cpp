@@ -18,7 +18,7 @@ void reply(const char* response, int len)
 #endif
 
     case CONN_SERIAL:
-      Serial.println(response);
+      Serial.print(response);
       break;
   }
   

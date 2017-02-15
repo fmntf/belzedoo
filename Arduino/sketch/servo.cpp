@@ -27,6 +27,8 @@ void handleServoRequest(JsonObject& root)
   response["success"] = (bool)true;
 
   written = response.printTo(jsonOut, 255);
+  jsonOut[written] = '\n';
+  written++;
   jsonOut[written] = '\0';
   reply(jsonOut, written);
 }

@@ -3,18 +3,26 @@
 
 #include "Arduino.h"
 
-#define SKETCH_VERSION 3
+#define SKETCH_VERSION 4
+//#define ENABLE_SERIAL_DEBUG
+
+// end of configuration!
 
 #ifdef ARDUINO_UDOO_NEO
-  #define SERIAL_DEBUG Serial0
+  #ifdef ENABLE_SERIAL_DEBUG
+    #define SERIAL_DEBUG Serial0
+  #endif
 #else
   #ifdef __ARDUINO_ARC__
-    #define SERIAL_DEBUG Serial1
+    #ifdef ENABLE_SERIAL_DEBUG
+      #define SERIAL_DEBUG Serial1
+    #endif
   #else
-    #define SERIAL_DEBUG Serial1
+    #ifdef ENABLE_SERIAL_DEBUG
+      #define SERIAL_DEBUG Serial1
+    #endif
     #define HAS_ADK
   #endif
 #endif
-
 
 #endif
