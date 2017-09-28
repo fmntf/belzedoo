@@ -30,6 +30,14 @@ void handleMethodRequest(JsonObject& root)
     int value = root["value"];
     digitalWrite(pin, value);
 
+  } else if (strcmp(method, "timedDigitalWrite") == 0) {
+    int pin = root["pin"];
+    int value = root["value"];
+    int delayTime = root["delay"];
+    digitalWrite(pin, value);
+    delay(delayTime);
+    digitalWrite(pin, !value);
+
   } else if (strcmp(method, "pinMode") == 0) {
     int pin = root["pin"];
     int value = root["value"];
