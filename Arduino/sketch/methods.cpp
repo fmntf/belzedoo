@@ -57,6 +57,16 @@ void handleMethodRequest(JsonObject& root)
     int value = analogRead(pin);
     response["value"] = value;
 
+  } else if (strcmp(method, "repeatedAnalogRead") == 0) {
+    int pin = root["pin"];
+    int n = root["samples"];
+    int d = root["delay"];
+    JsonArray& samples = response.createNestedArray("samples");
+    for (int i=0; i<n; i++) {
+      samples.add(analogRead(pin));
+      delay(d);
+    }
+
   } else if (strcmp(method, "map") == 0) {
     int value = root["value"];
     int fromLow = root["fromLow"];
