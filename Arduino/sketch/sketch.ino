@@ -7,6 +7,7 @@
 #include <SI7021.h>
 #include <TSL2561.h>
 #include <Adafruit_TCS34725.h>
+#include <ChainableLED.h>
 
 #ifdef HAS_ADK
 #include <adk.h>
@@ -29,6 +30,7 @@ int written;
 
 #include "reply.h"
 #include "sensors.h"
+#include "actuators.h"
 #include "methods.h"
 #include "servo.h"
 
@@ -127,6 +129,9 @@ void processCommand(char* readBuffer)
     }
     if (root.containsKey("sensor")) {
       handleSensorRequest(root);
+    }
+    if (root.containsKey("actuator")) {
+      handleActuatorRequest(root);
     }
     if (root.containsKey("servo")) {
       handleServoRequest(root);
