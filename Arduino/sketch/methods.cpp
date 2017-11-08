@@ -28,12 +28,14 @@ void handleMethodRequest(JsonObject& root)
   } else if (strcmp(method, "digitalWrite") == 0) {
     int pin = root["pin"];
     int value = root["value"];
+    pinMode(pin, OUTPUT);
     digitalWrite(pin, value);
 
   } else if (strcmp(method, "timedDigitalWrite") == 0) {
     int pin = root["pin"];
     int value = root["value"];
     int delayTime = root["delay"];
+    pinMode(pin, OUTPUT);
     digitalWrite(pin, value);
     delay(delayTime);
     digitalWrite(pin, !value);
@@ -42,9 +44,11 @@ void handleMethodRequest(JsonObject& root)
     int pin = root["pin"];
     int value = root["value"];
     pinMode(pin, value);
+    response["deprecated"] = (bool)true;
 
   } else if (strcmp(method, "digitalRead") == 0) {
     int pin = root["pin"];
+    pinMode(pin, INPUT);
     int value = digitalRead(pin);
     response["value"] = value;
 
@@ -61,10 +65,12 @@ void handleMethodRequest(JsonObject& root)
     int toHigh = root["toHigh"];
     int mapped = map(value, fromLow, fromHigh, toLow, toHigh);
     response["value"] = mapped;
+    response["deprecated"] = (bool)true;
 
   } else if (strcmp(method, "analogWrite") == 0) {
     int pin = root["pin"];
     int value = root["value"];
+    pinMode(pin, OUTPUT);
     analogWrite(pin, value);
 
   } else if (strcmp(method, "delay") == 0) {
