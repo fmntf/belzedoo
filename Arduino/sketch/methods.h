@@ -7,8 +7,10 @@
 #include "Arduino.h"
 #include <StandardCplusplus.h>
 #include <queue>
+#include <Wire.h>
 
 void handleMethodRequest(JsonObject& root);
+int check_i2c_device(int dev_address, int reg);
 
 void interrupt_handler_pin(int pin);
 

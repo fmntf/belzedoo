@@ -123,11 +123,23 @@ void handleMethodRequest(JsonObject& root)
     interrupt_ids[pin] = 0;
     detachInterrupt(pin);
     
-#ifdef SERIAL_DEBUG
-    char buff[100];
-    snprintf(buff, sizeof(buff), "Unregistered interrupt handler on pin %d", pin);
-    SERIAL_DEBUG.println(buff);
-#endif
+  } else if (strcmp(method, "scanSensors") == 0) {
+
+    Wire.begin();
+    JsonArray& sensors = response.createNestedArray("sensors");
+
+    if (check_i2c_device(0x29, 0x0A) == 0) {
+      sensors.add("LIGHT_BRICK");
+    }
+    if (check_i2c_device(0x40, 0xE5) == 0) {
+      sensors.add("HUMIDITY_BRICK");
+    }
+    if (check_i2c_device(0x48, 0x00) == 0) {
+      sensors.add("TEMPERATURE_BRICK");
+    }
+    if (check_i2c_device(0x60, 0x00) == 0) {
+      sensors.add("PRESSURE_BRICK");
+    }
   }
  
   else {
@@ -140,6 +152,18 @@ void handleMethodRequest(JsonObject& root)
   written++;
   jsonOut[written] = '\0';
   reply(jsonOut, written);
+}
+
+int check_i2c_device(int dev_address, int reg) {
+  Wire.beginTransmission(dev_address);
+  Wire.write(reg);
+  Wire.endTransmission();
+  Wire.requestFrom(dev_address, 1);
+  int v = Wire.read();
+  if (v != 0xFFFFFFFF) {
+    return 0;
+  }
+  return -1;
 }
 
 void interrupt_handler_pin(int pin)
