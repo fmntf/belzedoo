@@ -4,10 +4,20 @@
 #include <Servo.h>
 #include <dht.h>
 #include <Wire.h>
-#include <SI7021.h>
+
 #include <TSL2561.h>
 #include <Adafruit_TCS34725.h>
 #include <ChainableLED.h>
+
+#include <SI7021.h> // Humidity Brick
+#include <LM75.h> // Temperature Brick
+#include <TSL2561.h> // Light Brick
+
+#ifdef ARDUINO_UDOO_NEO
+#include <Adafruit_MPL3115A2_neo_pragma.h> // Barometer Brick
+#else
+#include <Adafruit_MPL3115A2.h> // Barometer Brick
+#endif
 
 #ifdef HAS_ADK
 #include <adk.h>

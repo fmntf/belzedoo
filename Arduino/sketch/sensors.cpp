@@ -10,8 +10,6 @@ void handleSensorRequest(JsonObject& root)
   JsonObject& response = responseJsonBuffer.createObject();
   response["id"] = root["id"];
 
-#ifndef UDOONeo
-
   if (strcmp(sensor, "DHT11") == 0 || strcmp(sensor, "DHT22") == 0) {
     int pin = root["pin"];
     dht DHT;
@@ -46,13 +44,7 @@ void handleSensorRequest(JsonObject& root)
     }
   }
   
-  else
-
-#else
-#warning "FIX ME!"
-#endif
-  
-  if (strcmp(sensor, "TCS34725") == 0) {
+  else if (strcmp(sensor, "TCS34725") == 0) {
     
     Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
     if (tcs.begin()) {
@@ -92,6 +84,29 @@ void handleSensorRequest(JsonObject& root)
       response["errorCode"] = 0;
     }
 
+  }
+  
+  else if (strcmp(sensor, "PRESSURE_BRICK") == 0) {
+    
+    Adafruit_MPL3115A2 barometer = Adafruit_MPL3115A2();
+
+    if (barometer.begin()) {
+      response["success"]     = (bool)true;
+      response["pressure"]    = barometer.getPressure(); // Pascal
+      response["altitude"]    = barometer.getAltitude();
+      response["temperature"] = barometer.getTemperature();
+    } else {
+      response["success"] = (bool)false;
+      response["errorCode"] = 0;
+    }
+  }
+  
+  else if (strcmp(sensor, "TEMPERATURE_BRICK") == 0) {
+    
+    LM75 tsensor;
+
+    response["success"]     = (bool)true;
+    response["temperature"] = tsensor.temp();
   }
   
   else if (strcmp(sensor, "LIGHT_BRICK") == 0) {
