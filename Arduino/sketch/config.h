@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 
-#define SKETCH_VERSION 5
+#define SKETCH_VERSION 6
 #define ENABLE_SERIAL_DEBUG
 
 // end of configuration!
