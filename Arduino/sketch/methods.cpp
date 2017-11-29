@@ -92,23 +92,34 @@ void handleMethodRequest(JsonObject& root)
     int mode = root["mode"]; //change=2, falling=3, rising=4
     interrupt_ids[pin] = root["interrupt_id"];
 
-    pinMode(pin, INPUT);
-    last_interrupt_call[pin] = millis();
-    switch (pin) {
-      case 0: attachInterrupt(pin, interrupt_handler_0, mode); break;
-      case 1: attachInterrupt(pin, interrupt_handler_1, mode); break;
-      case 2: attachInterrupt(pin, interrupt_handler_2, mode); break;
-      case 3: attachInterrupt(pin, interrupt_handler_3, mode); break;
-      case 4: attachInterrupt(pin, interrupt_handler_4, mode); break;
-      case 5: attachInterrupt(pin, interrupt_handler_5, mode); break;
-      case 6: attachInterrupt(pin, interrupt_handler_6, mode); break;
-      case 7: attachInterrupt(pin, interrupt_handler_7, mode); break;
-      case 8: attachInterrupt(pin, interrupt_handler_8, mode); break;
-      case 9: attachInterrupt(pin, interrupt_handler_9, mode); break;
-      case 10: attachInterrupt(pin, interrupt_handler_10, mode); break;
-      case 11: attachInterrupt(pin, interrupt_handler_11, mode); break;
-      case 12: attachInterrupt(pin, interrupt_handler_12, mode); break;
-      case 13: attachInterrupt(pin, interrupt_handler_13, mode); break;
+   #ifdef ARDUINO_UDOO_X86
+   if (mode == 2 && (
+     pin == 0 || pin == 1 || pin == 3 || pin == 4 || pin == 6 || pin == 9
+   )) {
+     response["success"] = (bool)false;
+     response["error"] = "CHANGE unavailable on 0/1/3/4/6/9";
+   }
+   #endif
+
+    if (response["success"]) {
+      pinMode(pin, INPUT);
+      last_interrupt_call[pin] = millis();
+      switch (pin) {
+        case 0: attachInterrupt(pin, interrupt_handler_0, mode); break;
+        case 1: attachInterrupt(pin, interrupt_handler_1, mode); break;
+        case 2: attachInterrupt(pin, interrupt_handler_2, mode); break;
+        case 3: attachInterrupt(pin, interrupt_handler_3, mode); break;
+        case 4: attachInterrupt(pin, interrupt_handler_4, mode); break;
+        case 5: attachInterrupt(pin, interrupt_handler_5, mode); break;
+        case 6: attachInterrupt(pin, interrupt_handler_6, mode); break;
+        case 7: attachInterrupt(pin, interrupt_handler_7, mode); break;
+        case 8: attachInterrupt(pin, interrupt_handler_8, mode); break;
+        case 9: attachInterrupt(pin, interrupt_handler_9, mode); break;
+        case 10: attachInterrupt(pin, interrupt_handler_10, mode); break;
+        case 11: attachInterrupt(pin, interrupt_handler_11, mode); break;
+        case 12: attachInterrupt(pin, interrupt_handler_12, mode); break;
+        case 13: attachInterrupt(pin, interrupt_handler_13, mode); break;
+      }
     }
 
 #ifdef SERIAL_DEBUG

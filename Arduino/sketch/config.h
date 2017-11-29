@@ -20,12 +20,14 @@
       #define SERIAL_DEBUG Serial1
     #endif
     #define MAX_PINS 13
+    #define ARDUINO_UDOO_X86
   #else
     #ifdef ENABLE_SERIAL_DEBUG
       #define SERIAL_DEBUG Serial1
     #endif
     #define HAS_ADK
     #define MAX_PINS 53
+    #define ARDUINO_UDOO_QDL
   #endif
 #endif
 

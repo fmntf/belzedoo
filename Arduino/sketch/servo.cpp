@@ -46,3 +46,4 @@ void handleServoRequest(JsonObject& root)
   jsonOut[written] = '\0';
   reply(jsonOut, written);
 }
+
