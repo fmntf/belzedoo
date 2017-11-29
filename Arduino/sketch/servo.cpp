@@ -3,7 +3,8 @@
 extern char jsonOut[256];
 extern int written;
 
-Servo servos[53];
+
+Servo servos[MAX_PINS];
 
 void handleServoRequest(JsonObject& root)
 {
@@ -14,12 +15,25 @@ void handleServoRequest(JsonObject& root)
   response["id"] = root["id"];
 
   if (strcmp(method, "attach") == 0) {
-    servos[pin].attach(pin);
+    response["deprecated"] = (bool)true;
+    if (!servos[pin].attached()) {
+      servos[pin].attach(pin);
+    }
   } else if (strcmp(method, "detach") == 0) {
-    servos[pin].detach();
+    if (servos[pin].attached()) {
+      servos[pin].detach();
+    }
   } else if (strcmp(method, "write") == 0) {
     int degrees = root["degrees"];
-    servos[pin].write(degrees);
+
+    if (!servos[pin].attached()) {
+      servos[pin].attach(pin);
+    }
+    
+    if (servos[pin].read() != degrees) {
+      servos[pin].write(degrees);
+    }
+   
   } else {
     response["success"] = (bool)false;
   }
