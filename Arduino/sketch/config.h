@@ -9,6 +9,7 @@
 // end of configuration!
 
 #ifdef ARDUINO_UDOO_NEO
+  #define HAS_BRICK_SUPPORT
   #ifdef ENABLE_SERIAL_DEBUG
     #define SERIAL_DEBUG Serial0
   #endif

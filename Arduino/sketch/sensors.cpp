@@ -70,7 +70,8 @@ void handleSensorRequest(JsonObject& root)
     }
 
   }
-  
+
+#ifdef HAS_BRICK_SUPPORT
   else if (strcmp(sensor, "HUMIDITY_BRICK") == 0) {
     
     SI7021 humidityBrick;
@@ -130,6 +131,7 @@ void handleSensorRequest(JsonObject& root)
     }
 
   }
+#endif //HAS_BRICK_SUPPORT
   
   else {
     response["success"] = (bool)false;
