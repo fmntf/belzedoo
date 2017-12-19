@@ -58,6 +58,13 @@ void setup()
   SERIAL_DEBUG.println("UDOO debug serial started!");
 #endif
 
+#ifdef ARDUINO_UDOO_X86
+  while (!Serial);
+#ifdef SERIAL_DEBUG
+  SERIAL_DEBUG.println("Arduino 101 serial is now available");
+#endif
+#endif
+
 #ifdef HAS_ADK
   activeConnection = CONN_ADK;
   reply("{\"success\":true,\"startup\":true}");
@@ -83,19 +90,20 @@ void loop()
     }
   }
 #endif //HAS_ADK
-
-  if (Serial.available() > 0){
+  int readn = Serial.available();
+  if (readn > 0) {
     char readFromSerial[100];
     char serialChar;
     int readIndex = 0;
     bool messageComplete = false;
     int watchDog = 512;
     
-    while (!messageComplete) {
+    while (readn > 0  && !messageComplete ) {
       serialChar = Serial.read();
+      readn--;
 #ifdef SERIAL_DEBUG
       SERIAL_DEBUG.print("X+ " );
-      SERIAL_DEBUG.println(serialChar);
+      SERIAL_DEBUG.println(serialChar, DEC);
 #endif
       if (serialChar == 255) {
         watchDog--;
