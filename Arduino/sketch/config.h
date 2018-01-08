@@ -16,12 +16,15 @@
   #define MAX_PINS 13
 #else
   #ifdef __ARDUINO_ARC__
+    // UDOO X86
+    #define HAS_BRICK_SUPPORT
     #ifdef ENABLE_SERIAL_DEBUG
       #define SERIAL_DEBUG Serial1
     #endif
     #define MAX_PINS 13
     #define ARDUINO_UDOO_X86
   #else
+    // UDOO Quad
     #ifdef ENABLE_SERIAL_DEBUG
       #define SERIAL_DEBUG Serial1
     #endif

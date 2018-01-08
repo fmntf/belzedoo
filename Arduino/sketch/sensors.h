@@ -13,9 +13,9 @@
 #include <LM75.h> // Temperature Brick
 #include <TSL2561.h> // Light Brick
 #ifdef ARDUINO_UDOO_NEO
-#include <Adafruit_MPL3115A2_neo_pragma.h> // Barometer Brick
+ #include <Adafruit_MPL3115A2_neo_pragma.h> // Barometer Brick
 #else
-#include <Adafruit_MPL3115A2.h> // Barometer Brick
+ #include <Adafruit_MPL3115A2_101_pragma.h> // Barometer Brick
 #endif
 #endif //HAS_BRICK_SUPPORT
 
