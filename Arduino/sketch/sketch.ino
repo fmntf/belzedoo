@@ -49,6 +49,14 @@ void processCommand(char* readBuffer);
 
 connection_type activeConnection;
 
+#define SERIAL_BUFFER_SIZE 128
+#define SERIAL_WATCHDOG_N 256
+char serial_buffer[SERIAL_BUFFER_SIZE];
+char serial_char;
+int  serial_index = 0;
+int  serial_available = 0;
+bool serial_complete = false;
+int  serial_watchdog = SERIAL_WATCHDOG_N;
 
 void setup()
 {
@@ -64,6 +72,8 @@ void setup()
   SERIAL_DEBUG.println("Arduino 101 serial is now available");
 #endif
 #endif
+  // empty previous buffer, if any
+  while (Serial.available() > 0) Serial.read();
 
 #ifdef HAS_ADK
   activeConnection = CONN_ADK;
@@ -90,45 +100,54 @@ void loop()
     }
   }
 #endif //HAS_ADK
-  int readn = Serial.available();
-  if (readn > 0) {
-    char readFromSerial[100];
-    char serialChar;
-    int readIndex = 0;
-    bool messageComplete = false;
-    int watchDog = 512;
-    
-    while (readn > 0  && !messageComplete ) {
-      serialChar = Serial.read();
-      readn--;
+
+  int serial_available = Serial.available();
+  if (serial_available > 0) {
+    while (serial_available > 0  && !serial_complete) {
+      serial_char = Serial.read();
+      serial_available--;
 #ifdef SERIAL_DEBUG
       SERIAL_DEBUG.print("X+ " );
-      SERIAL_DEBUG.println(serialChar, DEC);
+      SERIAL_DEBUG.println(serial_char, DEC);
 #endif
-      if (serialChar == 255) {
-        watchDog--;
-        if (watchDog <= 0) {
+
+      if (serial_char == 255) {
+        serial_watchdog--;
+        if (serial_watchdog <= 0) {
 #ifdef SERIAL_DEBUG
           SERIAL_DEBUG.println("Watchdog reset!");
+          serial_watchdog = SERIAL_WATCHDOG_N;
 #endif
           return;
         }
       } else {
-        readFromSerial[readIndex] = serialChar;
-        readIndex++;
-        readFromSerial[readIndex] = '\0';
+        if (serial_index > SERIAL_BUFFER_SIZE-1) {
+#ifdef SERIAL_DEBUG
+          SERIAL_DEBUG.println("Serial buffer overrun!");
+#endif
+          comm_reset();
+          return;
+        } // buffer
         
-        if (serialChar == 10 || serialChar == 13) {
-          messageComplete = true;
+        serial_buffer[serial_index] = serial_char;
+        serial_index++;
+        serial_buffer[serial_index] = '\0';
+        
+        if (serial_char == 10 || serial_char == 13) {
+          serial_complete = true;
         }
-      }
+      } // char!=255
+    } // while
+
+    if (serial_complete) {
+      activeConnection = CONN_SERIAL;
+      processCommand(serial_buffer);
+      serial_complete = false;
+      serial_index = 0;
     }
-    activeConnection = CONN_SERIAL;
-    processCommand(readFromSerial);
   }
 
   flushInterrupts();
-
   delay(10);
 }
 
@@ -146,20 +165,44 @@ void processCommand(char* readBuffer)
     if (root.containsKey("method")) {
       handleMethodRequest(root);
     }
-    if (root.containsKey("sensor")) {
+    else if (root.containsKey("sensor")) {
       handleSensorRequest(root);
     }
-    if (root.containsKey("actuator")) {
+    else if (root.containsKey("actuator")) {
       handleActuatorRequest(root);
     }
-    if (root.containsKey("servo")) {
+    else if (root.containsKey("servo")) {
       handleServoRequest(root);
     }
     
   } else {
-    reply("{\"success\":false,\"error\":\"PARSE_FAILED\"}");
-    reply(readBuffer);
+    int s=0;
+    bool found = false;
+    while (!found && s<SERIAL_BUFFER_SIZE && readBuffer[s] != '\0') {
+#ifdef SERIAL_DEBUG
+      SERIAL_DEBUG.println(readBuffer[s]);
+#endif
+      if (readBuffer[s] == '{') {
+        found = true;
+        char* substri = readBuffer + s;
+        processCommand(substri);
+      }
+      s++;
+    }
+    
+    if (!found) {
+      comm_reset();
+      reply("{\"success\":false,\"error\":\"PARSE_FAILED\"}");
+      reply(readBuffer);
+    }
   }
 }
 
+void comm_reset()
+{
+  serial_index = 0;
+  serial_complete = false;
+  serial_watchdog = SERIAL_WATCHDOG_N;
+  for (int y=0; y<SERIAL_BUFFER_SIZE; y++) serial_buffer[y]=0;
+}
 
