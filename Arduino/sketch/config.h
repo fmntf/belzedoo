@@ -4,11 +4,12 @@
 #include "Arduino.h"
 
 #define SKETCH_VERSION 6
-#define ENABLE_SERIAL_DEBUG
+//#define ENABLE_SERIAL_DEBUG
 
 // end of configuration!
 
 #ifdef ARDUINO_UDOO_NEO
+  // UDOO Neo
   #define HAS_BRICK_SUPPORT
   #ifdef ENABLE_SERIAL_DEBUG
     #define SERIAL_DEBUG Serial0
