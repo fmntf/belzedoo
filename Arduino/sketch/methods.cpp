@@ -3,8 +3,8 @@
 extern char jsonOut[256];
 extern int written;
 
-int interrupt_ids[53] = {0};
-volatile unsigned long last_interrupt_call[53] = {0};
+int interrupt_ids[MAX_PINS+1] = {0};
+volatile unsigned long last_interrupt_call[MAX_PINS] = {0};
 
 std::queue <response_t> queuedInterrupts;
 
@@ -20,8 +20,10 @@ void handleMethodRequest(JsonObject& root)
     response["version"] = SKETCH_VERSION;
     
   } else if (strcmp(method, "disconnect") == 0) {
-    for (int i=0; i<=13; i++) {
-      detachInterrupt(i);
+    for (int i=0; i<=MAX_PINS; i++) {
+      if (interrupt_ids[i] != 0) {
+        detachInterrupt(i);
+      }
     }
     response["disconnected"] = (bool)true;
 
@@ -90,7 +92,6 @@ void handleMethodRequest(JsonObject& root)
   } else if (strcmp(method, "attachInterrupt") == 0) {
     int pin = root["pin"];
     int mode = root["mode"]; //change=2, falling=3, rising=4
-    interrupt_ids[pin] = root["interrupt_id"];
 
    #ifdef ARDUINO_UDOO_X86
    if (mode == 2 && (
@@ -102,6 +103,7 @@ void handleMethodRequest(JsonObject& root)
    #endif
 
     if (response["success"]) {
+      interrupt_ids[pin] = root["interrupt_id"];
       pinMode(pin, INPUT);
       last_interrupt_call[pin] = millis();
       switch (pin) {
@@ -131,14 +133,18 @@ void handleMethodRequest(JsonObject& root)
 
   } else if (strcmp(method, "detachInterrupt") == 0) {
     int pin = root["pin"];
-    interrupt_ids[pin] = 0;
-    detachInterrupt(pin);
+    if (interrupt_ids[pin] != 0) {
+      interrupt_ids[pin] = 0;
+      detachInterrupt(pin);
+    } else {
+      response["success"] = (bool)false;
+      response["error"] = "No interrupt configured on this pin";
+    }
     
   } else if (strcmp(method, "scanSensors") == 0) {
 
     Wire.begin();
     JsonArray& sensors = response.createNestedArray("sensors");
-
     if (check_i2c_device(0x29, 0x0A) == 0) {
       sensors.add("LIGHT_BRICK");
     }
