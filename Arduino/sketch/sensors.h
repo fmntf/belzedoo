@@ -20,5 +20,6 @@
 #endif //HAS_BRICK_SUPPORT
 
 void handleSensorRequest(JsonObject& root);
+int check_i2c_device(int dev_address, int reg);
 
 #endif

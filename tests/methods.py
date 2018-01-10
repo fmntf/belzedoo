@@ -40,8 +40,4 @@ test.write('{"id": 220, "method":"attachInterrupt", "pin":3, "mode":2, "interrup
 print("Interrupt (detach)");
 test.write('{"id": 221, "method":"detachInterrupt", "pin":3}');
 
-print("I2C Sensors Scanner");
-test.write('{"id": 230, "method":"scanSensors"}');
-
-
 test.closeport();

@@ -132,6 +132,26 @@ void handleSensorRequest(JsonObject& root)
 
   }
 #endif //HAS_BRICK_SUPPORT
+
+  else if (strcmp(sensor, "scanI2C") == 0) {
+    
+    Wire.begin();
+    JsonArray& sensors = response.createNestedArray("sensors");
+    if (check_i2c_device(0x29, 0x0A) == 0) {
+      sensors.add("LIGHT_BRICK");
+    }
+    if (check_i2c_device(0x40, 0xE5) == 0) {
+      sensors.add("HUMIDITY_BRICK");
+    }
+    if (check_i2c_device(0x48, 0x00) == 0) {
+      sensors.add("TEMPERATURE_BRICK");
+    }
+    if (check_i2c_device(0x60, 0x00) == 0) {
+      sensors.add("PRESSURE_BRICK");
+    }
+  }
+ 
+
   
   else {
     response["success"] = (bool)false;
@@ -144,3 +164,16 @@ void handleSensorRequest(JsonObject& root)
   jsonOut[written] = '\0';
   reply(jsonOut, written);
 }
+
+int check_i2c_device(int dev_address, int reg) {
+  Wire.beginTransmission(dev_address);
+  Wire.write(reg);
+  Wire.endTransmission();
+  Wire.requestFrom(dev_address, 1);
+  int v = Wire.read();
+  if (v != 0xFFFFFFFF) {
+    return 0;
+  }
+  return -1;
+}
+

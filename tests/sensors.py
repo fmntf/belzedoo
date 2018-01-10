@@ -4,6 +4,9 @@ from belzetest import *
 test = BelzeTest()
 test.openport()
 
+print("I2C Sensors Scanner");
+test.write('{"id": 230, "sensor":"scanI2C"}');
+
 for _ in range(0, 3):
 
     print("Light Brick");
