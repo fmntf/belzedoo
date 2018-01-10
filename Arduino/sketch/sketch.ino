@@ -77,10 +77,10 @@ void setup()
 
 #ifdef HAS_ADK
   activeConnection = CONN_ADK;
-  reply("{\"success\":true,\"startup\":true}");
+  reply("{\"success\":true,\"startup\":true}\n");
 #endif
   activeConnection = CONN_SERIAL;
-  reply("{\"success\":true,\"startup\":true}");
+  reply("{\"success\":true,\"startup\":true}\n");
 }
 
 void loop()
