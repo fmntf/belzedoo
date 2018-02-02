@@ -46,6 +46,7 @@ int written;
 #include "servo.h"
 
 void processCommand(char* readBuffer);
+void comm_reset();
 
 connection_type activeConnection;
 
