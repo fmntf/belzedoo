@@ -98,7 +98,7 @@ void handleMethodRequest(JsonObject& root)
      pin == 0 || pin == 1 || pin == 3 || pin == 4 || pin == 6 || pin == 9
    )) {
      response["success"] = (bool)false;
-     response["error"] = "CHANGE unavailable on 0/1/3/4/6/9";
+     response["error"] = "CHANGE unavailable on pins 0/1/3/4/6/9";
    }
    #endif
 
