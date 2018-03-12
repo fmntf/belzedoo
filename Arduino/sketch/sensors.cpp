@@ -88,18 +88,24 @@ void handleSensorRequest(JsonObject& root)
   }
   
   else if (strcmp(sensor, "PRESSURE_BRICK") == 0) {
-    
+
     Adafruit_MPL3115A2 barometer = Adafruit_MPL3115A2();
 
     if (barometer.begin()) {
       response["success"]     = (bool)true;
       response["pressure"]    = barometer.getPressure(); // Pascal
-      response["altitude"]    = barometer.getAltitude();
-      response["temperature"] = barometer.getTemperature();
+      if (response["pressure"] == -1) {
+        response["success"] = (bool)false;
+        response["errorCode"] = 1;
+      } else {
+        response["altitude"]    = barometer.getAltitude();
+        response["temperature"] = barometer.getTemperature();
+      }
     } else {
       response["success"] = (bool)false;
       response["errorCode"] = 0;
     }
+
   }
   
   else if (strcmp(sensor, "TEMPERATURE_BRICK") == 0) {

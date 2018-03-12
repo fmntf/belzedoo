@@ -79,10 +79,14 @@ float Adafruit_MPL3115A2::getPressure() {
 	 MPL3115A2_CTRL_REG1_BAR);
 
   uint8_t sta = 0;
+  uint8_t retriesLeft = 100;
   while (! (sta & MPL3115A2_REGISTER_STATUS_PDR)) {
     sta = read8(MPL3115A2_REGISTER_STATUS);
+    if (retriesLeft == 0) return -1;
+    else retriesLeft--;
     delay(10);
   }
+
   Wire.beginTransmission(MPL3115A2_ADDRESS); // start transmission to device 
   Wire.write(MPL3115A2_REGISTER_PRESSURE_MSB); 
 #ifdef __AVR_ATtiny85__
