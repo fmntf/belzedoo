@@ -3,11 +3,14 @@
 extern char jsonOut[256];
 extern int written;
 
-
 Servo servos[MAX_PINS];
 
 void handleServoRequest(JsonObject& root)
 {
+#ifdef VERBOSE_DEBUG
+  SERIAL_DEBUG.println("Trace: handleServoRequest");
+#endif
+
   const char* method = root["servo"];
   int pin = root["pin"];
   StaticJsonBuffer<200> responseJsonBuffer;

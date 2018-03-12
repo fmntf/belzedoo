@@ -104,12 +104,15 @@ void loop()
 
   int serial_available = Serial.available();
   if (serial_available > 0) {
+#ifdef VERBOSE_DEBUG
+      SERIAL_DEBUG.print("Receiving: " );
+#endif
     while (serial_available > 0  && !serial_complete) {
       serial_char = Serial.read();
       serial_available--;
-#ifdef SERIAL_DEBUG
-      SERIAL_DEBUG.print("X+ " );
-      SERIAL_DEBUG.println(serial_char, DEC);
+#ifdef VERBOSE_DEBUG
+      SERIAL_DEBUG.print(serial_char, DEC);
+      SERIAL_DEBUG.print(" ");
 #endif
 
       if (serial_char == 255) {
@@ -139,6 +142,9 @@ void loop()
         }
       } // char!=255
     } // while
+#ifdef VERBOSE_DEBUG
+    SERIAL_DEBUG.println(";");
+#endif
 
     if (serial_complete) {
       activeConnection = CONN_SERIAL;
@@ -181,6 +187,7 @@ void processCommand(char* readBuffer)
     bool found = false;
     while (!found && s<SERIAL_BUFFER_SIZE && readBuffer[s] != '\0') {
 #ifdef SERIAL_DEBUG
+      SERIAL_DEBUG.println("!");
       SERIAL_DEBUG.println(readBuffer[s]);
 #endif
       if (readBuffer[s] == '{') {

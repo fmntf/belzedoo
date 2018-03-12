@@ -10,6 +10,10 @@ std::queue <response_t> queuedInterrupts;
 
 void handleMethodRequest(JsonObject& root)
 {
+#ifdef VERBOSE_DEBUG
+  SERIAL_DEBUG.println("Trace: handleMethodRequest");
+#endif
+  
   const char* method = root["method"];
   StaticJsonBuffer<200> responseJsonBuffer;
   JsonObject& response = responseJsonBuffer.createObject();

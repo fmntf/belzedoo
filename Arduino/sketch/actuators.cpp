@@ -5,6 +5,10 @@ extern int written;
 
 void handleActuatorRequest(JsonObject& root)
 {
+#ifdef VERBOSE_DEBUG
+  SERIAL_DEBUG.println("Trace: handleActuatorRequest");
+#endif
+
   const char* actuator = root["actuator"];
   StaticJsonBuffer<200> responseJsonBuffer;
   JsonObject& response = responseJsonBuffer.createObject();

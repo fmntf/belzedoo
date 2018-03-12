@@ -5,7 +5,9 @@
 
 #define SKETCH_VERSION 6
 //#define ENABLE_SERIAL_DEBUG
-
+#ifdef ENABLE_SERIAL_DEBUG
+//#define VERBOSE_DEBUG
+#endif
 // end of configuration!
 
 #ifdef ARDUINO_UDOO_NEO

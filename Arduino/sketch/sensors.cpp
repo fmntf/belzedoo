@@ -5,12 +5,17 @@ extern int written;
 
 void handleSensorRequest(JsonObject& root)
 {
+#ifdef VERBOSE_DEBUG
+  SERIAL_DEBUG.println("Trace: handleMethodRequest");
+#endif
+
   const char* sensor = root["sensor"];
   StaticJsonBuffer<200> responseJsonBuffer;
   JsonObject& response = responseJsonBuffer.createObject();
   response["id"] = root["id"];
 
   if (strcmp(sensor, "DHT11") == 0 || strcmp(sensor, "DHT22") == 0) {
+
     int pin = root["pin"];
     dht DHT;
     int chk;
