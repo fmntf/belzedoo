@@ -1,6 +1,5 @@
 #include "config.h"
 #include <ArduinoJson.h>
-#include <StandardCplusplus.h>
 #include <Servo.h>
 #include <dht.h>
 #include <Wire.h>

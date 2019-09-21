@@ -5,9 +5,23 @@
 #include "reply.h"
 #include <ArduinoJson.h>
 #include "Arduino.h"
-#include <StandardCplusplus.h>
+#undef min
+#undef max
 #include <queue>
 #include <Wire.h>
+
+namespace std {
+  void __throw_bad_alloc()
+  {
+    Serial.println("Unable to allocate memory");
+  }
+
+  void __throw_length_error( char const*e )
+  {
+    Serial.print("Length Error :");
+    Serial.println(e);
+  }
+}
 
 void handleMethodRequest(JsonObject& root);
 
